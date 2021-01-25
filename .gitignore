@@ -112,6 +112,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+sentimentalEnv/
 
 # Spyder project settings
 .spyderproject
@@ -123,7 +124,7 @@ venv.bak/
 # mkdocs documentation
 /site
 
-# mypy
+i# mypy
 .mypy_cache/
 .dmypy.json
 dmypy.json
