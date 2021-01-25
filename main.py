@@ -4,6 +4,9 @@ from requests_oauthlib import OAuth1
 import json
 import yaml
 import numpy as np
+import pandas as pd
+import re
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
 # Implementation of a bearer authentication (subclass)
@@ -53,8 +56,55 @@ def create_lists_by_keys(dict_response, key_response):
         for keys in dict_response['statuses']:
             lists_keys[k].append(keys[k])
 
-    print(lists_keys)
+    return lists_keys
 
+
+def remove_pattern(input_txt, pattern):
+    r = re.findall(pattern, input_txt)
+    for i in r:
+        input_txt = re.sub(i, '', input_txt)
+    return input_txt
+
+
+def clean_tweets(tweets):
+    # remove twitter Return handles (RT @xxx:)
+    tweets = np.vectorize(remove_pattern)(tweets, "RT @[\w]*:")
+
+    #     # Remove break lines \n
+    #     tweets = np.vectorize(remove_pattern)(tweets, "\n")
+
+    # remove twitter handles (@xxx)
+    tweets = np.vectorize(remove_pattern)(tweets, "@[\w]*")
+
+    # remove URL links (httpxxx)
+    tweets = np.vectorize(remove_pattern)(tweets, "https?://[A-Za-z0-9./]*")
+
+    # remove special characters, numbers, punctuations (except for #)
+    tweets = np.core.defchararray.replace(tweets, "[^a-zA-Z]", " ")
+    # tweets = np.core.defchararray.replace(tweets, r"[^\w\s]", " ")
+    # tweets = np.vectorize(remove_pattern)(tweets, "")
+
+    return tweets
+
+
+def sentiment_scores(sentence):
+    # Create a SentimentIntensityAnalyzer object.
+    sid_obj = SentimentIntensityAnalyzer()
+
+    # polarity_scores method of SentimentIntensityAnalyzer
+    # oject gives a sentiment dictionary.
+    # which contains pos, neg, neu, and compound scores.
+    sentiment_dict = sid_obj.polarity_scores(sentence)
+
+    # decide sentiment as positive, negative and neutral using the compound value
+    if sentiment_dict['compound'] >= 0.05:
+        return "positive"
+
+    elif sentiment_dict['compound'] <= - 0.05:
+        return "negative"
+
+    else:
+        return "neutral"
 
 
 if __name__ == '__main__':
@@ -98,10 +148,33 @@ if __name__ == '__main__':
     dict_response = json_response_tweeter(response)
 
     # Create list of tweets and dates
-    create_lists_by_keys(dict_response, key_response)
+    lists_keys = create_lists_by_keys(dict_response, key_response)
 
-    # get the keys_response and assigns to df
-    
+    # get the text responses and assigns to df
+    d = {'texts': lists_keys['text']}
+    df = pd.DataFrame(data=d)
+    print(df)
+
+    # Cleaning the data
+    df['texts'] = clean_tweets(df['texts'])
+
+    # Sentimental analysis using Vader
+    #analyser = SentimentIntensityAnalyzer()
+    df['classification'] = df['texts'].apply(sentiment_scores)
+    print(df)
+
+    # Extra columns
+    d = {'created_at': lists_keys['created_at']}
+    df['created_at'] = pd.DataFrame(data=d)
+    print(df)
+
+    # Saving in a excel file
+    df.to_excel("twitterSentimentals.xlsx", index=False)
+
+
+
+
+
 
 
 
