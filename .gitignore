@@ -116,6 +116,9 @@ venv.bak/
 sentimentalEnv/
 *.sentimentalEnv
 
+# Pem File (ssh AWS)
+*.pem
+
 # Spyder project settings
 .spyderproject
 .spyproject

@@ -1,6 +1,5 @@
 import os
 import requests
-from requests_oauthlib import OAuth1
 import json
 import yaml
 import numpy as np
@@ -114,7 +113,7 @@ if __name__ == '__main__':
     parameters['hashtag_search'] = "'%23Corona'"
     parameters['language'] = 'lang=en'
     parameters['recent'] = 'result_type=recent'
-    parameters['quant'] = 'count=10'
+    parameters['quant'] = 'count=150'
     #list_parameters = list()
     #list_parameters.extend([hashtag_search, language, recent, quant])
 
