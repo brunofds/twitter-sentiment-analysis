@@ -5,6 +5,7 @@ __pycache__/
 
 # the yaml file
 *.yaml
+*.yml
 
 # C extensions
 *.so
@@ -113,6 +114,7 @@ ENV/
 env.bak/
 venv.bak/
 sentimentalEnv/
+*.sentimentalEnv
 
 # Spyder project settings
 .spyderproject
