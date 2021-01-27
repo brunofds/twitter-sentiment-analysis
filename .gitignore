@@ -6,7 +6,8 @@ __pycache__/
 # the yaml file
 *.yaml
 *.yml
-
+config.yml
+config.yml~
 # C extensions
 *.so
 
@@ -118,7 +119,7 @@ sentimentalEnv/
 
 # Pem File (ssh AWS)
 *.pem
-
+.pem
 # Spyder project settings
 .spyderproject
 .spyproject
