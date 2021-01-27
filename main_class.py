@@ -119,40 +119,6 @@ class Twitterpy():
 
 
 
-def use_yaml_bearer(yml_file, api_name, key_bearer_token):
-
-    with open(yml_file, 'r') as cgfile:
-        data = yaml.safe_load(cgfile)
-        bearer_token = data[api_name][key_bearer_token]
-        print("Bearer Token:", bearer_token)
-        return (bearer_token)
-
-
-def get_response(key_bearer_token):
-    # https://api.twitter.com/2/tweets/search/recent?
-    headers = {"Authorization": "Bearer {}".format(key_bearer_token)}
-    query = "%23Corona&result_type=recent"
-    #tweet_fields = "tweet.fields=lang,author_id"
-    url = "https://api.twitter.com/1.1/search/tweets.json?q={}".format(
-                              query)
-    tweet_fields = "tweet.fields=author_id"
-
-    response = requests.request('GET', url, headers=headers)
-
-    print(response.status_code)
-    # if response.status_code != 200:
-    #     raise Exception(response.status_code, response.text)
-    return response
-
-
-class BearerAuth(requests.auth.AuthBase):
-    def __init__(self, token):
-        self.token = token
-    def __call__(self, r):
-        r.headers["authorization"] = "Bearer " + self.token
-        return rbearer_token
-
-
 if __name__ == '__main__':
 
     # 1- Input Hashtag
