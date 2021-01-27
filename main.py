@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import re
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import matplotlib.pyplot as plt
 
 
 # Implementation of a bearer authentication (subclass)
@@ -40,9 +41,10 @@ def create_url_search(parameters):
         for p in range(1, len(parameters.keys()), 1):
             url_parameters = url_parameters + '&' + list(parameters.values())[p]
 
+    print(url_parameters)
     return url_parameters
 
-def json_response_tweeter(respose):
+def json_response_twitter(response):
     dict_response = response.json()
     return dict_response
 
@@ -110,7 +112,9 @@ if __name__ == '__main__':
 
     # Search Parameters
     parameters = dict()
-    parameters['hashtag_search'] = "'%23Corona'"
+    #parameters['hashtag_search'] = "'%23Corona'"
+    hashtag = input("Input the hashtag you want to analyse the sentiment: ")
+    parameters['hashtag_search'] = "%23" + hashtag
     parameters['language'] = 'lang=en'
     parameters['recent'] = 'result_type=recent'
     parameters['quant'] = 'count=150'
@@ -122,20 +126,14 @@ if __name__ == '__main__':
     bearer_token = 'key_bearer_token'
     config_name = 'config.yml'
 
-    # Tweeter lists
-    tweeter_texts = list()
-    tweeter_created_time = list()
-
-    # Response keys
+    # Response keys (inside statuses there is a dictionary list)
     key_response = dict()
     key_response['text'] = 'text'
     key_response['created_at'] = 'created_at'
 
-
-
     # Creating the url
     url = create_url_search(parameters)
-    print(url)
+    #print(url)
 
     # Get the bearer auth over yaml file
     bearer_auth = use_yaml(config_name, api_name, bearer_token)
@@ -144,7 +142,7 @@ if __name__ == '__main__':
     response = connect_twitterapi(url, bearer_auth)
 
     # Get the dict response
-    dict_response = json_response_tweeter(response)
+    dict_response = json_response_twitter(response)
 
     # Create list of tweets and dates
     lists_keys = create_lists_by_keys(dict_response, key_response)
@@ -168,7 +166,11 @@ if __name__ == '__main__':
     print(df)
 
     # Saving in a excel file
-    df.to_excel("twitterSentimentals.xlsx", index=False)
+    df.to_excel(hashtag + "twitterSentimentals.xlsx", index=False)
+
+    # Plotting horizontal bar
+    df.groupby('classification')['texts'].nunique().plot(kind='bar')
+    plt.show()
 
 
 
