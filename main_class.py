@@ -35,7 +35,7 @@ class Twitterpy():
 
         return (self.bearer_token)
 
-    def generate_url(self, language='en', result_type='recent', count_tweets=10, hashtag='%23Corona'):
+    def generate_url(self, language='en', result_type='recent', count_tweets=10, hashtag='Corona'):
         self.language = language
         self.result_type = result_type
         self.count_tweets = count_tweets
@@ -44,7 +44,7 @@ class Twitterpy():
         lang = 'lang={}'.format(self.language)
         count = 'count={}'.format(self.count_tweets)
         result_type = 'result_type={}'.format(self.result_type)
-        url_search = '{}q={}&{}&{}&{}'.format(self.url, self.hashtag, lang, result_type, count)
+        url_search = '{}q=%23{}&{}&{}&{}'.format(self.url, self.hashtag, lang, result_type, count)
         print(url_search)
 
         return url_search
@@ -133,7 +133,7 @@ if __name__ == '__main__':
 
     # 4 -  Generate URL Search
     # count_tweets (max=100), language, result_type (recent, mixed, popular)
-    url_search = tweeters.generate_url(count_tweets=15, hashtag=hashtag)
+    url_search = tweeters.generate_url(count_tweets=100, hashtag=hashtag)
 
     # 5 - Get the response
     response = tweeters.get_response(url_search)
