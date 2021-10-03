@@ -1,5 +1,5 @@
 # twitter-sentiment-analysis
-Creating a sentiment analysis with Python to classifying texts as negative, neutral or positive
+Creating a sentiment analysis with Python to classify texts as negative, neutral or positive
 
 #Functional Requirements  
 - Gather about 100 to 200 tweets with the hashtag #corona from the Twitter API  
