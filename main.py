@@ -1,4 +1,5 @@
 from api import tweeterapi
+import json
 
 # import os
 # import requests
@@ -20,8 +21,9 @@ def main():
 
     # hashtag = input("Input the hashtag you want to analyse the sentiment: ")
     tw_obj = tweeterapi.Tweets()
-    tw_obj.search_query_v2(**{'query': '(#Corona) lang:en', 'tweet.fields': [{'lang': 'en'}], 'max_results': 10})
-
+    response = tw_obj.search_query_v2(**{'query': '(#Corona) lang:en', 'tweet.fields': [{'lang': 'en'}], 'max_results': 10})
+    if response:
+        print(response.json())
 
     # # Yaml parameterscorona
     # api_name = 'search_tweets_api_cred'

@@ -1,4 +1,6 @@
 from logging import raiseExceptions
+from urllib import response
+from xmlrpc.client import ResponseError
 import requests
 import logging
 from authentication import auth
@@ -33,16 +35,16 @@ class Tweets():
     #     logger.info(f"Query generated: {url_string}")
     #     return url_string
 
-    def search_query_v2(self, **params) -> None:
+    def search_query_v2(self, **params):
         url = 'https://api.twitter.com/2/tweets/search/recent?'
         try:
             response = auth.get_data_apiv1(url, **params)
             logger.info(f"Status Code: {response.status_code}")
-            print(response.json())
+            # print(response.json())
         except requests.RequestException as e:
             print(e)
 
-
+     
 def json_response_twitter(response):
     dict_response = response.json()
     return dict_response
