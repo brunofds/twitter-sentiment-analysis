@@ -1,29 +1,42 @@
 from api import tweeterapi
 import json
-
-# import os
-# import requests
-# import json
-# import yaml
-# import pandas as pd
-# import re
-# from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-# import matplotlib.pyplot as plt
+from classification import tweets_classification
+import logging
 
 
-# 1 - Split authentication functions in another file
-# 2 - Split the tweeter options to get tweets
-# 3 - Split the generation of file with tweets (clean, data and metadata)
-# 4 - Split the ML to define the tweets
-# TIP: Replace delimiters o tweets before saving on csv
+logger = logging.getLogger()
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 
 def main():
+    logger.info("Iniciando a operação")
+    csv_name = 'tweets_out'
+    csv_sentiment_out = 'sentimentanalysed'
+    folder = 'files/tweets_csv_out'
 
     # hashtag = input("Input the hashtag you want to analyse the sentiment: ")
     tw_obj = tweeterapi.Tweets()
-    response = tw_obj.search_query_v2(**{'query': '(#Corona) lang:en', 'tweet.fields': [{'lang': 'en'}], 'max_results': 10})
-    if response:
-        print(response.json())
+    response = tw_obj.search_query_v2(**{'query': '(#Corona) lang:en', 'tweet.fields': [], 'max_results': 10})
+    print(response)
+    tweeterapi.store_response_csv(response, csv_name, folder)  # Store response to csv
+
+    # Read csv file and define the sentiment analyse
+    tweets_classification.classify_sentiment(folder, csv_name, csv_sentiment_out)
+
+    
+    # Classificate each line
+    
+    
+
+    
+    
+    
+
+
+
 
     # # Yaml parameterscorona
     # api_name = 'search_tweets_api_cred'

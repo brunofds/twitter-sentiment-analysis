@@ -1,7 +1,6 @@
 {
-    "query": "%23Corona&lang=en&count=100",
+    "query": "(#Corona) lang:en",
     "tweet.fields": ["text", "created_at", "id"],
-    "lang": "en",
     "result_type": "recent",
     "count": 100
 }
