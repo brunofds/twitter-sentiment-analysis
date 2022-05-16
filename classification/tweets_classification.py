@@ -28,14 +28,17 @@ def _load_csv_to_df(path_file, file_name):
 
 
 def _clean_tweets(tweets_df):
+    remove_list = [r'\n', r'\t', r'\n\r', r'\r', r'#']
     # remove twitter Return handles (RT @xxx:)
     tweets = tweets_df['text']
 
     # Remove break lines
+
     tweets = re.sub(r'\n', ' ', tweets)
     tweets = re.sub(r'\t', ' ', tweets)
     tweets = re.sub(r'\n\r', ' ', tweets)
     tweets = re.sub(r'\r', ' ', tweets)
+    tweets = re.sub(r'#', ' ', tweets)
     tweets = np.vectorize(remove_pattern)(tweets, "RT @[\w]*:")
 
     # remove twitter handles (@xxx)

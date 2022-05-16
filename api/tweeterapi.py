@@ -1,19 +1,13 @@
-from logging import raiseExceptions
-from urllib import response
-from xmlrpc.client import ResponseError
-import requests
-import logging
-# import logging.config
-from authentication import auth
-import os
-import json
 import csv
-# from twlogging import logtw
+import json
+import logging
+import os
+from xmlrpc.client import ResponseError
+import pandas as pd
 
-# logger = logtw
+import requests
+from authentication import auth
 
-# logging.basicConfig(level=logging.INFO)
-# ConsoleOutputFormat = logging.Formatter('%(asctime)s %(name)s: %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -38,10 +32,11 @@ class Tweets():
             response = auth.get_data_apiv1(url, **params)
             logger.info(f"Status Code: {response.status_code}")
             print(response.json())
-        except requests.RequestException as e:
-            print(e)
+            auth.generate_bearer_token()
+        except requests.RequestException as erro:
+            print(erro)
         if not response:
-            raise ResponseError(f"It wasn't possible find data with this parameters: {params} ")
+            raise ResponseError(f"It wasn't possible to find data with this parameters: {params} or you are Unauthorized ")
 
         return response
 
@@ -66,55 +61,36 @@ def _json_list_to_csv(json_string):
 def _create_dir(folder):
     try:
         os.makedirs(folder, exist_ok=True)
-    except OSError as e:
-        logger.error("Can't create destination directiory (%s)!" % folder)
+    except OSError as erro:
+        logger.error("Can't create destination directiory %s! OSError: %s", folder, erro)
     logger.info(f"Folder '{folder}' created successfully")
 
 
 
-def _store_list_csv(header, list_values, filename, folder):
+def _store_list_csv(header, list_values, filename, folder, response):
     file_and_extension = filename + '.csv'
     filepath = os.path.join(folder, file_and_extension)
     _create_dir(folder)
-    with open(filepath, 'w') as f:
-        write = csv.writer(f, delimiter='|')
-        write.writerow(header)
-        write.writerows(list_values)
+    df = pd.DataFrame(response.json()['data'], columns=['text', 'created_at'])
+    df.to_csv(filepath, sep='|')
     logger.info(
         f"{filename} created successfully in {file_and_extension} folder")
+    
+    # with open(filepath, 'w') as f:
+    #     write = csv.writer(f, delimiter='|')
+    #     write.writerow(header)
+    #     write.writerows(list_values)
+    # logger.info(
+    #     f"{filename} created successfully in {file_and_extension} folder")
 
 
 def store_response_csv(response, filename, folder, separator='|'):
     cleaned_response = remove_character_response(response, '|')
-    _json_list_to_csv(cleaned_response)
     logger.info(f"Separator '{separator}' removed from response")
     fields, list_values = _json_list_to_csv(cleaned_response)
-    _store_list_csv(fields, list_values, filename, folder)
-
-
-
-    #fields = list(y.get('data')[0].keys())
-    #list_values.append([x[0].values() for x in y.get('data')])
-    # rows = [x for x in x().get('data').values()]
-
-
-    # os.path.join(path_out, file_name, "." + '.csv')
-    # if response:
-    #     with open
+    _store_list_csv(fields, list_values, filename, folder, response)
 
 
 def json_response_twitter(response):
     dict_response = response.json()
     return dict_response
-
-
-def create_lists_by_keys(dict_response, key_response):
-    lists_keys = {}
-    quant_key_response = len(key_response.values())
-    for k, v in key_response.items():
-        print(k)
-        lists_keys[k] = list()
-        for keys in dict_response['statuses']:
-            lists_keys[k].append(keys[k])
-
-    return lists_keys

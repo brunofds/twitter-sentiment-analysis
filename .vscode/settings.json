@@ -1,4 +1,3 @@
 {
-    "python.linting.enabled": true,
-    "python.linting.pylintArgs": ["--max-line-length=200"]
+
 }

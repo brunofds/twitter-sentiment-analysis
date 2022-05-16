@@ -1,11 +1,15 @@
-
+import logging
 from http.client import responses
-import requests
 from os import environ
-from dotenv import load_dotenv
 
+import dotenv
+import requests
+from dotenv import load_dotenv
+from requests import auth
 
 load_dotenv()
+dotenv_file = dotenv.find_dotenv()
+logger = logging
 
 API_KEY = environ.get('API_KEY')
 API_KEY_SECRET = environ.get('API_KEY_SECRET')
@@ -33,25 +37,40 @@ def get_data_apiv1(url, **params):
     # params = {'query': query}
     headers = _bearer_token_header()
     # params = {"query": "corona"}
-    return requests.request('GET', url, headers=headers, params=params)
+    response = requests.request('GET', url, headers=headers, params=params)
+    if response.status_code == 401:
+        generate_bearer_token()
+
+    return response
 
 
+def _handle_response_bearer(response):
+    if response.status == 401:
+        logger.error("There was a problem authenticating your request due to missing or incorrect authentication credentials. Check if your api_key and api_key_secret are right")
+        choose = input("Do you want generate another token (y/n)? ")
+        if choose == 'y':
+            generate_bearer_token()
+    return
+
+
+def generate_bearer_token():
+    url = 'https://api.twitter.com/oauth2/token'
+    data = {
+        'grant_type': 'client_credentials',
+    }
+    response = requests.post(
+        url, data=data, auth=auth.HTTPBasicAuth(API_KEY, API_KEY_SECRET))
+    print(f"Response: {response.status_code}")
+    if response.status_code == 200:
+        logger.info(f"Generate Bearer token Response: {response}")
+        bearer_token = response.json()['access_token']
+        dotenv.set_key(dotenv_file, 'BEARER_TOKEN', bearer_token)
+    else:
+        _handle_response_bearer(response)
+        logger.info(
+            f"You don't have the right permissions to generate de Bearer Token: {response}")
 
 
 def post_api_v1():
     pass
 
-# def connect_twitterapi(url, auth_bearer):
-#     r = requests.get(url, auth=BearerAuth(auth_bearer))
-#     if r.status_code == 200:
-#         print("200 - SUCCESS RESPONSE")
-#     else:
-#         print("Probably an error")
-#     return r
-
-
-def use_yaml(yml_file, *argv):
-    with open('config.yml', 'r') as cgfile:
-        pass
-        # data = yaml.safe_load(cgfile)
-        # return (data['search_tweets_api_cred']['key_bearer_token'])

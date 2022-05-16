@@ -1,7 +1,6 @@
-from api import tweeterapi
-import json
-from classification import tweets_classification
 import logging
+from api import tweeterapi
+from classification import tweets_classification
 
 
 logger = logging.getLogger()
@@ -11,6 +10,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
+
 def main():
     logger.info("Iniciando a operação")
     csv_name = 'tweets_out'
@@ -19,22 +19,14 @@ def main():
 
     # hashtag = input("Input the hashtag you want to analyse the sentiment: ")
     tw_obj = tweeterapi.Tweets()
-    response = tw_obj.search_query_v2(**{'query': '(#Corona) lang:en', 'tweet.fields': [], 'max_results': 10})
+    response = tw_obj.search_query_v2(**{'query': '(#Corona) lang:en', 'tweet.fields': 'text,created_at', 'max_results': 10})
     print(response)
-    tweeterapi.store_response_csv(response, csv_name, folder)  # Store response to csv
+    tweeterapi.store_response_csv(response, csv_name, folder) 
 
     # Read csv file and define the sentiment analyse
     tweets_classification.classify_sentiment(folder, csv_name, csv_sentiment_out)
 
-    
-    # Classificate each line
-    
-    
-
-    
-    
-    
-
+    # Hot to handle the Barer token expired
 
 
 
