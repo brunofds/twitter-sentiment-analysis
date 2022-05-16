@@ -49,15 +49,6 @@ def remove_character_response(response, separator):
     return response.text.replace("|", ";")
 
 
-def _json_list_to_csv(json_string):
-    list_values = []
-    json_text = json.loads(json_string)
-    fields = list(json_text.get('data')[0].keys())
-    for i in json_text.get('data'):
-        list_values.append(list(i.values()))
-    return fields, list_values
-
-
 def _create_dir(folder):
     try:
         os.makedirs(folder, exist_ok=True)
@@ -66,8 +57,7 @@ def _create_dir(folder):
     logger.info(f"Folder '{folder}' created successfully")
 
 
-
-def _store_list_csv(header, list_values, filename, folder, response):
+def _store_list_csv(filename, folder, response):
     file_and_extension = filename + '.csv'
     filepath = os.path.join(folder, file_and_extension)
     _create_dir(folder)
@@ -76,19 +66,11 @@ def _store_list_csv(header, list_values, filename, folder, response):
     logger.info(
         f"{filename} created successfully in {file_and_extension} folder")
     
-    # with open(filepath, 'w') as f:
-    #     write = csv.writer(f, delimiter='|')
-    #     write.writerow(header)
-    #     write.writerows(list_values)
-    # logger.info(
-    #     f"{filename} created successfully in {file_and_extension} folder")
-
 
 def store_response_csv(response, filename, folder, separator='|'):
     cleaned_response = remove_character_response(response, '|')
     logger.info(f"Separator '{separator}' removed from response")
-    fields, list_values = _json_list_to_csv(cleaned_response)
-    _store_list_csv(fields, list_values, filename, folder, response)
+    _store_list_csv(filename, folder, response)
 
 
 def json_response_twitter(response):
