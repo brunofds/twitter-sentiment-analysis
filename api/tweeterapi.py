@@ -1,5 +1,3 @@
-import csv
-import json
 import logging
 import os
 from xmlrpc.client import ResponseError
@@ -41,12 +39,8 @@ class Tweets():
         return response
 
 
-def generate_json():
-    pass
-
-
 def remove_character_response(response, separator):
-    return response.text.replace("|", ";")
+    return response.text.replace(separator, ";")
 
 
 def _create_dir(folder):
@@ -68,7 +62,7 @@ def _store_list_csv(filename, folder, response):
     
 
 def store_response_csv(response, filename, folder, separator='|'):
-    cleaned_response = remove_character_response(response, '|')
+    cleaned_response = remove_character_response(response, separator='|')
     logger.info(f"Separator '{separator}' removed from response")
     _store_list_csv(filename, folder, response)
 

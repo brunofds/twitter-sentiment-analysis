@@ -45,12 +45,15 @@ def get_data_apiv1(url, **params):
 
 
 def _handle_response_bearer(response):
-    if response.status == 401:
-        logger.error("There was a problem authenticating your request due to missing or incorrect authentication credentials. Check if your api_key and api_key_secret are right")
-        choose = input("Do you want generate another token (y/n)? ")
-        if choose == 'y':
-            generate_bearer_token()
-    return
+    if response:
+        if response.status == 401:
+            logger.error("There was a problem authenticating your request due to missing or incorrect authentication credentials. Check if your api_key and api_key_secret are right")
+            choose = input("Do you want generate another token (y/n)? ")
+            if choose == 'y':
+                generate_bearer_token()
+    else:
+        logger.error("There is no response to the bearer authenticator")
+            
 
 
 def generate_bearer_token():
