@@ -1,19 +1,20 @@
 import logging
 from http.client import responses
 from os import environ
+from pkgutil import get_data
+from xmlrpc.client import ResponseError
 
 import dotenv
 import requests
 from dotenv import load_dotenv
 from requests import auth
 
-load_dotenv()
+load_dotenv(override=True)
 dotenv_file = dotenv.find_dotenv()
 logger = logging
 
 API_KEY = environ.get('API_KEY')
 API_KEY_SECRET = environ.get('API_KEY_SECRET')
-BEARER_TOKEN = environ.get('BEARER_TOKEN')
 ACCESS_TOKEN = environ.get('ACCESS_TOKEN')
 ACCESS_TOKEN_SECRET = environ.get('ACCESS_TOKEN_SECRET')
 
@@ -29,8 +30,28 @@ class BearerAuth():
 
 
 def _bearer_token_header():
-    headers = {"Authorization": f"Bearer {BEARER_TOKEN}"}
+    load_dotenv(override=True)
+    bearer_token = environ.get('BEARER_TOKEN')
+    headers = {"Authorization": f"Bearer {bearer_token}"}
     return headers
+
+
+def _handle_response(response) -> bool:
+    new_bearer = False
+    logger.info(f"Search API response: {response.text}")
+    if response is not None:
+        if response.status_code == 200:
+            logger.info(f"Response was genererated with succes. response.status_code = {response.status_code}")
+        if response.status_code == 401:
+            logger.info(f"There was a problem authenticating your request due to missing or incorrect authentication credentials.")
+            if str(input("Do you want generate another token (y/n)? ")).lower() == 'y':
+                new_bearer = generate_bearer_token()
+                return new_bearer
+    else:
+        logger.info("The response from search tweet was None")
+        raise ResponseError("The Search API response was bad")
+    
+    return new_bearer
 
 
 def get_data_apiv1(url, **params):
@@ -38,22 +59,21 @@ def get_data_apiv1(url, **params):
     headers = _bearer_token_header()
     # params = {"query": "corona"}
     response = requests.request('GET', url, headers=headers, params=params)
-    if response.status_code == 401:
-        generate_bearer_token()
-
+    if _handle_response(response):
+        return get_data_apiv1(url, **params)
     return response
 
 
-def _handle_response_bearer(response):
-    if response:
-        if response.status == 401:
-            logger.error("There was a problem authenticating your request due to missing or incorrect authentication credentials. Check if your api_key and api_key_secret are right")
-            choose = input("Do you want generate another token (y/n)? ")
-            if choose == 'y':
-                generate_bearer_token()
-    else:
-        logger.error("There is no response to the bearer authenticator")
-            
+    # if response.status_code == 200:
+    #     return response
+    # if response.status_code == 401:
+    #     logger.error("There was a problem authenticating your request due to missing or incorrect authentication credentials.")
+    #     choose = input("Do you want generate another token (y/n)? ")
+    #     if choose == 'y':
+    #         if generate_bearer_token():
+    #             get_data_apiv1(url, **params)
+    # else:
+    #     raise ResponseError(f"It wasn't possible to find data with this parameters: {params} or you are Unauthorized ")
 
 
 def generate_bearer_token():
@@ -68,10 +88,11 @@ def generate_bearer_token():
         logger.info(f"Generate Bearer token Response: {response}")
         bearer_token = response.json()['access_token']
         dotenv.set_key(dotenv_file, 'BEARER_TOKEN', bearer_token)
+        return True
     else:
-        _handle_response_bearer(response)
         logger.info(
             f"You don't have the right permissions to generate de Bearer Token: {response}")
+        return False
 
 
 def post_api_v1():
