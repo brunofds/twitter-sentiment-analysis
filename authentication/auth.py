@@ -1,3 +1,4 @@
+from cgitb import text
 import logging
 from http.client import responses
 from os import environ
@@ -55,25 +56,15 @@ def _handle_response(response) -> bool:
 
 
 def get_data_apiv1(url, **params):
-    # params = {'query': query}
     headers = _bearer_token_header()
-    # params = {"query": "corona"}
-    response = requests.request('GET', url, headers=headers, params=params)
-    if _handle_response(response):
-        return get_data_apiv1(url, **params)
-    return response
-
-
-    # if response.status_code == 200:
-    #     return response
-    # if response.status_code == 401:
-    #     logger.error("There was a problem authenticating your request due to missing or incorrect authentication credentials.")
-    #     choose = input("Do you want generate another token (y/n)? ")
-    #     if choose == 'y':
-    #         if generate_bearer_token():
-    #             get_data_apiv1(url, **params)
-    # else:
-    #     raise ResponseError(f"It wasn't possible to find data with this parameters: {params} or you are Unauthorized ")
+    
+    try:
+        response = requests.request('GET', url, headers=headers, params=params)
+        if _handle_response(response):
+            return get_data_apiv1(url, **params)
+        return response
+    except requests.HTTPError as e:
+        logger.error(f"Exception caught on Tweeter API: {e}")
 
 
 def generate_bearer_token():
